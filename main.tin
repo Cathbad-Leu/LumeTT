@@ -4,8 +4,8 @@
 #NOP -------------------------------------------------------------------------;
 
 #NOP -- Importa le librerie         --;
-#var lib ./lib
-#var mod ./modules
+#var lib lib
+#var mod modules
 #read $lib/colors.tin
 #read $lib/filesystem.tin
 #read $lib/modloader.tin
