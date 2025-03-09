@@ -1,0 +1,128 @@
+#nop --
+#nop Class Definitions
+#nop --
+
+#var map-description {Funzioni della Mappa}
+#var map-help {
+Gestione della mappa\n
+Creazione e definizione della mappa\n
+Alcune actions (triggers) legati a leu\n
+Vedi #help Map\n
+
+}
+#var map-register-delay 3
+
+#nop --
+#nop Modloader Stuff
+#nop --
+
+#alias map-register {
+	#if {!@isloaded{functions}} {
+		#showme ERROR: functions module not loaded;
+		fail_module map;
+		#class map kill
+	}
+}
+
+#nop -------------------------------------------------------------------------;
+#nop Inizializza la mappa;
+#nop -------------------------------------------------------------------------;
+
+#ALIAS {map_start}
+{
+    #MAP create;  
+    #MAP flag nofollow off;
+    #MAP flag static off;
+    #MAP flag vtmap on;
+    #MAP flag blockgraphics on;
+    #MAP read $saves/map.dat;
+    #MAP goto 1; 
+}
+
+#EVENT {IAC SB GMCP room.info IAC SE}
+{
+    #variable gmcp[room][info] {%0};
+
+    #if {$gmcp[room][info][num] == -1}
+    {
+        #return
+    };
+    #map goto {$gmcp[room][info][num][]} {dig};
+    
+    #NOP VARIABLE room_id $room_list_vnum[$gmcp[room][info][num]];
+    #NOP showme $room_id;
+        
+    #map get roomarea {result};
+    #if {"$result" == ""}
+    {
+          #map set roomarea $gmcp[room][info][zone];
+          #map set roomname $gmcp[room][info][name];
+          #map set roomterr $gmcp[room][info][terrain];
+          #map set roomcolor <178>;
+    };
+    #foreach {*gmcp[room][info][exits][]} {uscita}
+    {
+         #map get {roomexit} {result};
+         #if {&result[$uscita] == 0}
+         {
+             #map get {roomvnum} {result} {$gmcp[room][info][exits][$uscita]};
+             #map dig {$uscita} {$gmcp[room][info][exits][$uscita]};
+             #if {$result == 0}
+             {
+               #map set {roomcolor} {<118>} {$gmcp[room][info][exits][$uscita]}
+             };
+         }
+    };
+    #MAP update
+}
+
+#EVENT {MAP SHORT-CLICKED MOUSE BUTTON ONE}
+{
+    #MAP run {%0} 0.25
+}
+
+#event {MAP ENTER ROOM}
+{     
+    #class roomimagesclass assign #var rname "crname=$gmcp[room][info][name]";
+    #VARIABLE roomimg $gmcp[room][info][num];
+    #format {roomimg} {vnum=%s.png} {$roomimg};
+    #class roomimagesclass assign #var num $roomimg;
+    #class roomimagesclass write $imgs/currentroom.txt;
+}
+
+#FUNCTION {search_nearest} {
+    #LOCAL tmp {};
+    #IF { "%3" != "" && "%4" != "" } {
+        #ECHO {3: %3, 4: %4.};
+        #MAP LIST {VARIABLE} {tmp} {%1} {%2} {%3} {%4}
+    };
+    #ELSE {
+        #MAP LIST {VARIABLE} {tmp} {%1} {%2}
+    };
+
+    #LOCAL minval 0.000;
+    #FOREACH *tmp[] idx {
+        #IF { $tmp[$idx][distance] == -1.000 } {
+            #CONTINUE
+        };
+        #IF { $minval == 0.000 } {
+            #LOCAL minval {$tmp[$idx][distance]};
+            #LOCAL minidx $idx
+        };
+        #IF { $tmp[$idx][distance] < $minval } {
+            #LOCAL minval {$tmp[$idx][distance]};
+            #LOCAL minidx $idx
+        }
+    };
+
+    #IF { $minval > 1.000 } {
+        #RETURN $minidx
+    };
+    #ELSEIF { $minval == 1.000 } {
+        #RETURN 0
+    };
+    #ELSE {
+        #RETURN -1
+    }
+}
+

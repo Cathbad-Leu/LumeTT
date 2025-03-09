@@ -1,0 +1,29 @@
+#CLASS {trigger_data} OPEN
+
+#ACTION {Non puoi andare da quella parte.}
+{
+    #map undo
+}
+
+#ACTION {%1 ti impedisce il passaggio.}
+{
+    #map undo
+}
+
+#ACTION {La porta e` chiusa.}
+{
+    #map undo
+}
+
+#ACTION {Non puoi! Stai combattendo per la tua vita!}
+{
+    #map undo
+}
+
+#ACTION {La tua esperienza e` aumentata di %1 punti.}
+{
+    #math {gains[$mob][mobexp]} {$gains[$mob][mobexp] + %1};
+    #math {gains[$mob][mobcnt]} {$gains[$mob][mobcnt] + 1}
+}
+
+#CLASS {trigger_data} CLOSE

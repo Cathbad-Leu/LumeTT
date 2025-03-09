@@ -1,0 +1,160 @@
+#NOP VSOF;
+
+#class SAT_SCREEN open
+
+#EVENT {PROGRAM START}
+{
+    #CONFIG {PACKET PATCH} {0.5};
+    #class WIZARD kill;
+    #class COMMANDER kill;
+    #class SAT_SESSION kill;
+    #session side_grp localhost 5000;
+    #SCREEN raise {DESKTOP DIMENSIONS};
+    #SCREEN raise {SCREEN DIMENSIONS};
+    #VAR side_offsetx 400;
+    #VAR side_offsety 30;
+}
+
+#class SAT_SCREEN close
+
+#class SATELLITE open
+
+#EVENT {SESSION CONNECTED}
+{
+     #variable name {%0};
+     #if {"$name" == "side_grp"}
+     {
+          #send {screen name=(%0)}
+     }
+}
+
+#EVENT {SESSION DISCONNECTED}
+{ 
+    #class WIZARD kill;
+    #class COMMANDER kill;
+    #class SAT_SESSION kill;
+    #class SAT_SCREEN kill;
+    #end;
+}
+
+#EVENT {SESSION CREATED}
+{
+     #variable name {%0};
+     #nop;
+}
+
+#EVENT {PORT MESSAGE}
+{
+     #variable msg_chat {%0};    
+     #showme $msg_chat;
+}
+
+#class SATELLITE close
+
+#class MSDP open
+
+#VARIABLE {TELNET}
+{
+     {DO}   {\xFD}
+     {DONT} {\xFE}
+     {IAC}  {\xFF}
+     {MSDP} {\x45}
+     {SB}   {\xFA}
+     {SE}   {\xF0}
+     {WILL} {\xFB}
+     {WONT} {\xFC}
+     {GMCP} {\xC9}
+}
+
+#VARIABLE {MSDP}
+{
+     {ARRAY_CLOSE} {\x06}
+     {ARRAY_OPEN} {\x05}
+     {TABLE_CLOSE} {\x04}
+     {TABLE_OPEN} {\x03}
+     {VAL} {\x02}
+     {VAR} {\x01}
+}
+#EVENT {IAC WILL MSDP}
+{
+     #send {$TELNET[IAC]$TELNET[DO]$TELNET[MSDP]\};
+     #delay 1 msdp_report
+}
+
+#EVENT {IAC SB MSDP}
+{
+     #variable {MSDP_%0} {%1}
+}
+
+#EVENT {IAC SB MSDP SCREEN_MINIMIZED}
+{
+     #if {%1 == 0}
+     {
+          #screen minimize off;
+          #send {screen stole focus}
+     };
+     #else
+     {
+          #screen minimize on
+     }
+}
+
+#EVENT {IAC SB MSDP SCREEN_LOCATION_WIDTH}
+{
+     #variable CMD_POS_WIDTH {%1};
+     #NOP delay 0 screen move {$CMD_POS_HEIGHT - $side_offsety} {$CMD_POS_WIDTH - $side_offsetx};
+}
+
+#EVENT {IAC SB MSDP SCREEN_LOCATION_HEIGHT}
+{
+     #math CMD_POS_HEIGHT {%1};
+     #NOP delay 0 screen move {$CMD_POS_HEIGHT - $side_offsety} {$CMD_POS_WIDTH - $side_offsetx};
+}
+
+#EVENT {IAC SB MSDP SCREEN_WIDTH}
+{
+     #variable CMD_WIDTH {%1};
+     #NOP delay 0 screen move {$CMD_POS_HEIGHT - $side_offsety} {$CMD_POS_WIDTH - $side_offsetx};
+}
+
+#EVENT {IAC SB MSDP SCREEN_HEIGHT}
+{    
+     #variable CMD_HEIGHT {%1};
+     #delay 0 #screen move {$CMD_POS_HEIGHT - $side_offsety} {$CMD_POS_WIDTH - $side_offsetx}
+}
+
+#EVENT {IAC SB MSDP IAC SE}
+{
+     #nop
+}
+
+#VARIABLE {MSDP_REPORTABLE_VARIABLES}
+{
+     {SCREEN_FOCUS} {}
+     {SCREEN_HEIGHT} {}
+     {SCREEN_LOCATION_HEIGHT} {}
+     {SCREEN_LOCATION_WIDTH} {}
+     {SCREEN_MINIMIZED} {}
+     {SCREEN_WIDTH} {}
+}
+#ALIAS {msdp_report}
+{
+     #variable result {$TELNET[IAC]$TELNET[SB]$TELNET[MSDP]$MSDP[VAR]REPORT$MSDP[VAL]$MSDP[ARRAY_OPEN]};
+     #foreach {*MSDP_REPORTABLE_VARIABLES[]} {tmp}
+     {
+          #variable result {$result$MSDP[VAL]$tmp}
+     };
+     #send {$result$MSDP[ARRAY_CLOSE]$TELNET[IAC]$TELNET[SE]\}
+}
+
+#ALIAS {msdp_send}
+{
+     #send {$TELNET[IAC]$TELNET[SB]$TELNET[MSDP]$MSDP[VAR]SEND$MSDP[VAL]%0$TELNET[IAC]$TELNET[SE]\}
+}
+
+#ALIAS {msdp_list}
+{
+     #send {$TELNET[IAC]$TELNET[SB]$TELNET[MSDP]$MSDP[VAR]LIST$MSDP[VAL]%0$TELNET[IAC]$TELNET[SE]\}
+}
+
+#class MSDP close

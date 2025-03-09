@@ -1,0 +1,105 @@
+#nop --
+#nop Class Definitions
+#nop --
+
+#var trigger_detached-description {Funzioni dei Trigger}
+#var trigger_detached-help {
+Funzioni dei trigger_detached.\n
+Vengono caricate da saves/trigger_detached.dat\n
+Vedi help action\n
+
+}
+
+#nop --
+#nop Modloader Stuff
+#nop --
+
+#alias trigger_detached-register {
+	#nop need to check: events;
+	#if {@isloaded{functions}} {
+		register_module trigger_detached
+	} {
+		fail_module trigger_detached
+	}
+}
+
+#ACTION {Tu dici a %1 %2}
+{
+    al_comms_chat Tu dici a %1 %2
+}
+
+#ACTION {%1 ti dice %2}
+{
+     al_comms_chat %1 ti dice %2
+}
+
+#ACTION {%1 dice al gruppo %2}
+{
+     al_comms_grp %1 dice %2
+}
+
+#ACTION {Tu dici al gruppo %1}
+{
+    al_comms_grp Dici al gruppo %1
+}
+
+#ACTION {%1 dice alle lame %2}
+{
+    al_comms_guild %1 dice alle lame %2
+}
+
+#ACTION {%1 dice ai Luce %2}
+{
+    al_comms_guild %1 dice ai Luce %2
+}
+
+#ACTION {%1 dice ai Mercenari %2}
+{
+    al_comms_guild %1 dice ai Mercenari %2
+}
+
+#ACTION {%1 dice agli Esploratori %2}
+{
+    al_comms_guild %1 dice agli Esploratori %2
+}
+
+#ACTION {~%1 dice ai Vampiri %2}
+{
+    al_comms_guild %1 dice ai Vampiri %2
+}
+s
+#ACTION {~%1 dice ai Jedi %2}
+{
+    al_comms_guild %1 dice ai Jedi %2
+}
+
+#ACTION {~%1 dice alla gilda %2}
+{
+    al_comms_guild %1 dice agli alla gilda %2
+}
+
+#ACTION {~%1 dice algli spettri %2}
+{
+
+    al_comms_guild %1 dice agli spettri %2
+}
+
+#ACTION {~Mandi a %1 il pensiero %2}
+{
+    al_comms_chat Tu mandi il pensiero a %1 %2
+}
+
+#ACTION {~%1 ti manda il pensiero %2}
+{
+    al_comms_chat %1 ti manda il pensiero %2
+}
+
+#ACTION {~Mandi a %1 il messggio %2}
+{
+    al_comms_chat Tu mandi il messaggio a %1 %2
+}
+
+#ACTION {~%1 ti manda il messaggio %2}
+{
+    al_comms_chat %1 ti manda il messaggio %2
+}

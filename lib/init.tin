@@ -1,0 +1,160 @@
+#NOP VSOF;
+#NOP -- init detached windows var off --;
+
+#EVENT {RECEIVED ERROR}
+{
+    #echo <118>%h { TOKENIZER };
+    #info tokenizer -1;
+    #echo <118>%h
+}
+
+#class SAT_SCREEN open
+
+#EVENT {PROGRAM START}
+{
+    #CONFIG {PACKET PATCH} {0.5};
+    #if {"%0" != ""}
+    {
+        launch %0
+    }
+}
+
+#ALIAS {launch}
+{
+     #screen save title;
+     #if {"%0" == "commander"}
+     {
+          #NOP -- init all and go wizard --;
+          #var isDetached 1;
+          #NOP -- importa il wizard --;
+          #read ./lib/wizard.tin;
+          #NOP -- inizializza le porte --;
+          #line quiet #port init commander 5000;
+          #port flag private;
+          #NOP -- imposta lo schermo iniziale --;
+          #session gui_wizard;
+          gui_wizard_init
+     };
+     #elseif {"%0" == "classic"}
+     {
+          #class COM_SESSION kill;
+          #NOP We don't want detached windows;
+          #NOP -- Start with attached windows --;
+          #NOP -- init all and go wizard --;
+          #var isDetached 0;
+          #NOP -- load the wizard --;
+          #read ./lib/wizard.tin;
+          #NOP -- init program comunication port --;
+          #NOP port init commander 5000;
+          #NOP port flag private;
+          #NOP -- setup the wizard --;
+          #session gui_wizard;
+          gui_wizard_init
+     }
+}
+
+#EVENT {SESSION CREATED}
+{
+     #NOP -- inizia con la gui ed il wizard --;
+     #delay 0 #gts gui_wizard
+}
+
+#class COMMANDER open
+
+#EVENT {PORT RECEIVED MESSAGE}
+{
+     #regexp {%4} {^screen name=(%*)}
+     {
+          #var connected[&1] 1;#port name {%0} {&1}
+     };
+     #regexp {%4} {^screen stole focus$}
+     {
+          #screen focus
+     }
+}
+
+#class COMMANDER close
+
+#class COM_SESSION open
+
+#screen raise {screen location};
+#screen raise {screen minimized}
+
+#ALIAS {al_comms_chat}
+{
+     #screen get cols CMD_COLS;
+     #format tcomms_chat {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tcomms_chat[]} {tmpchat}
+     {
+          #commander #port send {comms_chat} {$tcomms_chat[$tmpchat]}
+     }
+}
+
+#ALIAS {al_comms_grp}
+{
+     #screen get cols CMD_COLS;
+     #format tcomms_grp {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tcomms_grp[]} {tmpgrp}
+     {
+          #commander #port send {comms_grp} {$tcomms_grp[$tmpgrp]}
+     }
+}
+
+#ALIAS {al_comms_guild}
+{
+     #screen get cols CMD_COLS;
+     #format tcomms_guild {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tcomms_guild[]} {tmpguild}
+     {
+          #commander #port send {comms_guild} {$tcomms_guild[$tmpguild]}
+     }
+}
+
+#ALIAS {al_side_alias}
+{
+     #screen get cols CMD_COLS;
+     #format tside_alias {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tside_alias[]} {tmpalias}
+     {
+          #commander #port send {side_alias} {$tside_alias[$tmpalias]}
+     }
+}
+
+#ALIAS {al_side_eq}
+{
+     #screen get cols CMD_COLS;
+     #format tside_eq {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tside_eq[]} {tmpeq}
+     {
+          #commander #port send {side_eq} {$tside_eq[$tmpeq]}
+     }
+}
+
+#ALIAS {al_side_grp}
+{
+     #screen get cols CMD_COLS;
+     #format tside_grp {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tside_grp[]} {tmpgrp}
+     {
+          #commander #port send {side_grp} {$tside_grp[$tmpgrp]}
+     }
+}
+
+#ALIAS {al_side_kills}
+{
+     #screen get cols CMD_COLS;
+     #format tside_kills {%w} {{%0} {$CMD_COLS}};
+     #foreach {*tside_kills[]} {tmpkills}
+     {
+          #commander #port send {side_kills} {$tside_grp[$tmpkills]}
+     }
+}
+
+#EVENT {MAP UPDATED VTMAP}
+{
+     #screen get cols CMD_COLS;
+     #map map {22} {20} {variable} {tmp};
+     #commander #port send {mapper} {$tmp}
+}
+
+#class COM_SESSION close
