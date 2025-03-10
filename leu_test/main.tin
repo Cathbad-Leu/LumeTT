@@ -39,7 +39,7 @@ load_module gui_ingame
 load_module triggers
 
 #NOP -------------------------------------------------------------------------;
-#NOP Macro to add movment with kyepad
+#NOP Macro to add movment with kyepad;
 #NOP -------------------------------------------------------------------------;
 
 #macro {\eOq} {d; #echo d}
@@ -80,7 +80,7 @@ load_module triggers
 }
 
 #NOP -------------------------------------------------------------------------;
-#NOP Varyous events
+#NOP Varyous events;
 #NOP -------------------------------------------------------------------------;
 
 #EVENT {SCREEN RESIZE}
@@ -108,7 +108,7 @@ load_module triggers
 }
 
 #NOP -------------------------------------------------------------------------;
-#NOP Use mouse click to change the input cursor's position.;
+#NOP Use mouse click to change the input cursor's position;
 #NOP -------------------------------------------------------------------------;
 
 #EVENT {SHORT-CLICKED MOUSE BUTTON ONE -1}
@@ -117,7 +117,7 @@ load_module triggers
 }
 
 #NOP -------------------------------------------------------------------------;
-#NOP Inizializza la nuova gui_ingame e dagli una rinfrescata
+#NOP Inizializza la nuova gui_ingame e dagli una rinfrescata;
 #NOP -------------------------------------------------------------------------;
 #SCREEN raise {SCREEN RESIZE}
 #SCREEN raise {SCREEN LOCATION}
@@ -126,7 +126,7 @@ load_module triggers
 gui_ingame_init
 gui_ingame_refresh
 
-#class LEU close;
+#class LEU close
 
 
 

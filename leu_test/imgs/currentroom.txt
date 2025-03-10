@@ -1,10 +1,10 @@
 #CLASS {roomimagesclass} OPEN
 
-#VARIABLE {cscrH} {"scrH=2215"}
-#VARIABLE {cscrW} {"scrW=3608"}
+#VARIABLE {cscrH} {"scrH=1735"}
+#VARIABLE {cscrW} {"scrW=2276"}
 #VARIABLE {cscrtx} {"scrtx=656"}
 #VARIABLE {cscrty} {"scrty=455"}
-#VARIABLE {num} {vnum=3008.png}
-#VARIABLE {rname} {"crname=La Reception"}
+#VARIABLE {num} {vnum=3000.png}
+#VARIABLE {rname} {"crname=ALMA CIVITAS"}
 
 #CLASS {roomimagesclass} CLOSE
