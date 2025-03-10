@@ -20,7 +20,7 @@
 #EVENT {SESSION CONNECTED}
 {
      #variable name {%0};
-     #if {"$name" == "comms_chat" || "$name" == "mapper"}
+     #if {"$name" == "comms_chat"}
      {
           #send {screen name=(%0)}
      }

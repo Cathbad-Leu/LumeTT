@@ -1,5 +1,4 @@
 #NOP VSOF;
-#NOP -- init detached windows var off --;
 
 #EVENT {RECEIVED ERROR}
 {
@@ -7,6 +6,10 @@
     #info tokenizer -1;
     #echo <118>%h
 }
+
+#NOP -------------------------------------------------------------------------;
+#NOP Check the argument on startup ;
+#NOP -------------------------------------------------------------------------;
 
 #class SAT_SCREEN open
 
@@ -25,13 +28,28 @@
      #if {"%0" == "commander"}
      {
           #NOP -- init all and go wizard --;
+          #NOP -- if we are on windows set as 1;
           #var isDetached 1;
-          #NOP -- importa il wizard --;
+          #NOP -- import the conn wizard --;
           #read ./lib/wizard.tin;
-          #NOP -- inizializza le porte --;
+          #NOP -- init the port for windows comunication --;
           #line quiet #port init commander 5000;
           #port flag private;
-          #NOP -- imposta lo schermo iniziale --;
+          #NOP -- open the wizard --;
+          #session gui_wizard;
+          gui_wizard_init
+     };
+     #elseif {"%0" == "unixcommander"}
+     {
+          #NOP -- init all and go wizard --;
+          #NOP -- if we are on unixlike set as 2;
+          #var isDetached 2;
+          #NOP -- import the conn wizard --;
+          #read ./lib/wizard.tin;
+          #NOP -- init the port for windows comunication --;
+          #line quiet #port init commander 5000;
+          #port flag private;
+          #NOP -- open the wizard --;
           #session gui_wizard;
           gui_wizard_init
      };
@@ -44,22 +62,29 @@
           #var isDetached 0;
           #NOP -- load the wizard --;
           #read ./lib/wizard.tin;
-          #NOP -- init program comunication port --;
-          #NOP port init commander 5000;
-          #NOP port flag private;
           #NOP -- setup the wizard --;
           #session gui_wizard;
           gui_wizard_init
+     };
+     #else 
+     {
+          #showme {please give an argument: classic,wincommander,unixcommander}    
      }
 }
 
 #EVENT {SESSION CREATED}
 {
-     #NOP -- inizia con la gui ed il wizard --;
+     #NOP -- go to the wizard --;
      #delay 0 #gts gui_wizard
 }
 
-#class COMMANDER open
+#class SAT_SCREEN close;
+
+#NOP -------------------------------------------------------------------------;
+#NOP this class will handle the varius sub-windows msg;
+#NOP -------------------------------------------------------------------------;
+
+#class COMMANDER open;
 
 #EVENT {PORT RECEIVED MESSAGE}
 {
@@ -73,11 +98,15 @@
      }
 }
 
-#class COMMANDER close
+#class COMMANDER close;
+
+#NOP -------------------------------------------------------------------------;
+#NOP Handle every window msg;
+#NOP -------------------------------------------------------------------------;
 
 #class COM_SESSION open
 
-#screen raise {screen location};
+#screen raise {screen location}
 #screen raise {screen minimized}
 
 #ALIAS {al_comms_chat}
@@ -157,4 +186,4 @@
      #commander #port send {mapper} {$tmp}
 }
 
-#class COM_SESSION close
+#class COM_SESSION close;
